@@ -3,7 +3,7 @@ const review = require('./models/review');
 
 
 module.exports.campgroundSchema = Joi.object({
-    campgroun: Joi.object({
+    campground: Joi.object({
         title: Joi.string().required(),
         price: Joi.number().required(),
         image: Joi.string().required(),
