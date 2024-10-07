@@ -32,7 +32,7 @@
         </div>
         <div class="col-md-6">
             <h2>Leave a Review</h2>
-            <form action="/campgrounds/<%= campground._id%>/review" method="POST" class="mb-3 validated-form"
+            <form action="/campgrounds/<%= campground._id%>/reviews" method="POST" class="mb-3 validated-form"
                 novalidate>
                 <div class="mv-3">
                     <label class="form-label" for="rating">Rating</label>
@@ -58,7 +58,7 @@
                             Review:
                             <%= review.body%>
                         </p>
-                        <form action="/campgrounds/<%= campground._id%>/review/<%= review._id%>?_method=DELETE"
+                        <form action="/campgrounds/<%= campground._id%>/reviews/<%= review._id%>?_method=DELETE"
                             method="POST">
                             <button class="btn btn-sm btn-danger">Delete</button>
                         </form>
