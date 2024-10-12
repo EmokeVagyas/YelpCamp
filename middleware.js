@@ -1,6 +1,8 @@
 const { campgroundSchema, reviewSchema } = require('./schemas.js');
 const Campground = require('./models/campground');
 const ExpressError = require('./utils/ExpressError');
+const { required } = require('joi');
+const Review = require('./models/review');
 
 const isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
@@ -34,12 +36,27 @@ const isAuthor = async (req, res, next) => {
     next();
 }
 
+const isReviewAuthor = async (req, res, next) => {
+    const { id, reviewId } = req.params;
+    const review = await Review.findById(reviewId);
+    if (!review.author.equals(req.user._id)) {
+        req.flash('error', 'You do not have permission to do that!');
+        return res.redirect(`/campground/${id}`);
+    }
+    next();
+}
+
 const storeReturnTo = (req, res, next) => {
-    console.log('storeReturnTo', req.session);
+    console.log('storeReturnTo', req.session.returnTo);
+    console.log('storeReturnTo RES: ', res.local?.returnTo);
 
     if (req.session.returnTo) {
+        console.log('BEJOVOK IDE')
         res.locals.returnTo = req.session.returnTo;
     }
+
+    console.log('2. storeReturnTo', req.session?.returnTo);
+    console.log('2. storeReturnTo RES: ', res.local?.returnTo);
 
     next();
 }
@@ -55,4 +72,4 @@ const validateReview = (req, res, next) => {
 };
 
 
-module.exports = { isLoggedIn, storeReturnTo, validateCampground, isAuthor, validateReview };
+module.exports = { isLoggedIn, storeReturnTo, validateCampground, isAuthor, validateReview, isReviewAuthor };
