@@ -26,8 +26,6 @@ const renderLogin = (req, res) => {
 
 const login = (req, res) => {
     req.flash('success', 'Welcome back!');
-
-    console.log('Res.locals in login')
     const redirectUrl = res.locals.returnTo || '/campgrounds';
     res.redirect(redirectUrl);
 };

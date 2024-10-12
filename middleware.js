@@ -8,7 +8,6 @@ const isLoggedIn = (req, res, next) => {
     if (!req.isAuthenticated()) {
 
         req.session.returnTo = req.originalUrl;
-        console.log('isLoggedIn', req.session, req.originalUrl);
 
         req.flash('error', 'You must be signed in!');
         return res.redirect('/login');
@@ -47,21 +46,15 @@ const isReviewAuthor = async (req, res, next) => {
 }
 
 const storeReturnTo = (req, res, next) => {
-    console.log('storeReturnTo', req.session.returnTo);
-    console.log('storeReturnTo RES: ', res.local?.returnTo);
-
     if (req.session.returnTo) {
-        console.log('BEJOVOK IDE')
         res.locals.returnTo = req.session.returnTo;
     }
-
-    console.log('2. storeReturnTo', req.session?.returnTo);
-    console.log('2. storeReturnTo RES: ', res.local?.returnTo);
 
     next();
 }
 
 const validateReview = (req, res, next) => {
+    console.log('Rev data: ', req.body)
     const { error } = reviewSchema.validate(req.body);
     if (error) {
         const msg = error.details.map(el => el.message).join(',');
