@@ -1,5 +1,8 @@
 const Campground = require('../models/campground');
 const cloudinary = require('cloudinary').v2;
+const { Client } = require('@googlemaps/google-maps-services-js')
+
+const client = new Client({});
 
 const index = async (req, res) => {
     const campgrounds = await Campground.find({});
@@ -11,11 +14,27 @@ const renderNewForm = (req, res) => {
 };
 
 const createCampground = async (req, res, next) => {
+    const address = req.body.campground.location;
+    const geoResponse = await client.geocode({
+        params: {
+            address: address,
+            key: process.env.GOOGLE_MAPS_API_KEY
+        }
+    });
+
     const campground = new Campground(req.body.campground);
     campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
     campground.author = req.user._id;
+
+    const locationData = geoResponse.data.results[0].geometry.location;
+    campground.geometry = {
+        type: 'Point',
+        coordinates: [locationData.lng, locationData.lat]
+    };
+
     await campground.save();
     console.log(campground);
+
     req.flash('success', 'Successfully made a new campground!');
     return res.redirect(`/campgrounds/${campground._id}`)
 };

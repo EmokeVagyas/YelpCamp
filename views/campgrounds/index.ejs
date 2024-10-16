@@ -5,6 +5,37 @@
         <a href="/campgrounds/new">Add Campground</a>
     </div>
 
+    <div id="map" style="height: 500px; width: 100%;"></div>
+
+    <script>
+        function initMap() {
+            // Initialize the map with a default center and zoom level
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 39.8283, lng: -98.5795 }, // Centered on USA
+                zoom: 4 // Initial zoom level
+            });
+
+            // Array to hold the markers for all campgrounds
+            var markers = [];
+
+            // Loop through all campgrounds and create markers
+            <% campgrounds.forEach(function (campground) { %>
+                const coordinates = <%= JSON.stringify(campground.geometry.coordinates) %>;
+                const marker = new google.maps.Marker({
+                    position: { lat: coordinates[1], lng: coordinates[0] },
+                    title: "<%= campground.title %>",
+                    map: map
+                });
+                markers.push(marker);
+            <% }); %>
+
+            // Create the marker clusterer to handle clustering of markers
+            const markerCluster = new MarkerClusterer(map, markers, {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+                });
+        }
+    </script>
+
     <% for (let campground of campgrounds) {%>
         <div class="card" mb-3>
             <div class="col-md-4">
