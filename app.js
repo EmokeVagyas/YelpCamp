@@ -18,9 +18,11 @@ const helmet = require('helmet');
 const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campground');
 const reviewRoutes = require('./routes/reviews');
-const { required } = require('joi');
 
-const MongoStore = require('connect-mongo');
+const MongoDBStore = require('connect-mongo')(session);
+
+const { required } = require('joi');
+const { Session } = require('inspector');
 
 const dbUrl = process.env.DB_URL;
 mongoose.connect(dbUrl);
@@ -44,11 +46,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+const store = new MongoDBStore({
+    url: dbUrl,
+    secret: 'thisshouldbeabettersecret!',
+    touchAfter: 24 * 60 * 60
+});
+
 const sessionConfig = {
-    store: MongoStore.create({
-        mongoUrl: dbUrl,
-        touchAfter: 24 * 3600 // time period in seconds
-    }),
+    store: store,
+    name: 'session',
     secret: 'thisshouldbeabettersecret!',
     resave: false,
     saveUninitialized: true,
