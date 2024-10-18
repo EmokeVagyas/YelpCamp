@@ -1,0 +1,6 @@
+{
+    "emmet.includeLanguages": {
+        "ejs": "html"
+    },
+    "html.format.templating": true
+}

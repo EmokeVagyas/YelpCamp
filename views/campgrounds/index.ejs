@@ -1,68 +1,97 @@
-<% layout('layouts/boilerplate')%>
+<% layout('layouts/boilerplate') %>
 
-    <h1>All Campgrounds</h1>
-    <div>
-        <a href="/campgrounds/new">Add Campground</a>
-    </div>
+<style>
+#map {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
 
+.campground-item {
+  display: flex;
+  flex-direction: row;
+}
+</style>
+
+<h1>All Campgrounds</h1>
+<div>
+  <a href="/campgrounds/new">Add Campground</a>
+</div>
+
+<div class="container">
+  <div class="row">
     <div id="map" style="height: 500px; width: 100%;"></div>
-
-    <script>
-        function initMap() {
-            // Initialize the map with a default center and zoom level
-            const map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 39.8283, lng: -98.5795 }, // Centered on USA
-                zoom: 4 // Initial zoom level
-            });
-
-            // Array to hold the markers for all campgrounds
-            var markers = [];
-
-            // Loop through all campgrounds and create markers
-            <% campgrounds.forEach(function (campground) { %>
-                const coordinates = <%= JSON.stringify(campground.geometry.coordinates) %>;
-                const marker = new google.maps.Marker({
-                    position: { lat: coordinates[1], lng: coordinates[0] },
-                    title: "<%= campground.title %>",
-                    map: map
-                });
-                markers.push(marker);
-            <% }); %>
-
-            // Create the marker clusterer to handle clustering of markers
-            const markerCluster = new MarkerClusterer(map, markers, {
-                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
-                });
-        }
-    </script>
-
-    <% for (let campground of campgrounds) {%>
-        <div class="card mb-3">
-            <div class="col-md-4">
-                <% if (campground.images.length> 0) { %>
-                    <img class="img-fluid" alt="" src="<%= campground.images[0].url %>">
-                    <% } else { %>
-                        <img class="img-fluid" alt="Placeholder"
-                            src="https://skiburke.com/visit-burke/accommodations/burke-campground/">
-                        <% } %>
-            </div>
-            <div class="col-md-8">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <%=campground.title%>
-                    </h5>
-                    <p class="card-text">
-                        <%=campground.description%>
-                    </p>
-                    <p class="card-text">
-                        <small class="tetx-muted">
-                            <%=campground.location%>
-                        </small>
-                    </p>
-                    <a class="btn btn-primary" href="/campgrounds/<%= campground._id%>">View <%=campground.title%>
-                    </a>
-                </div>
-            </div>
+  </div>
+  <div class="row">
+    <% for (let campground of campgrounds) { %>
+      <div class="col-md-6 card mb-1 mr-1 campground-item">
+        <div class="col-md-4">
+          <% if (campground.images.length) { %>
+          <img crossorigin="anonymous" class="img-fluid" alt="" src="<%= campground.images[0].url %>">
+          <% } else { %>
+          <img crossorigin="anonymous" class="img-fluid" alt="" src="https://res.cloudinary.com/douqbebwk/image/upload/v1600103881/YelpCamp/lz8jjv2gyynjil7lswf4.png">
+          <% } %>
         </div>
+        <div class="col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">
+              <%= campground.title %>
+            </h5>
+            <p class="card-text">
+              <%= campground.description %>
+            </p>
+            <p class="card-text">
+              <small class="text-muted">
+                <%= campground.location %>
+              </small>
+            </p>
+            <a class="btn btn-primary" href="/campgrounds/<%= campground._id %>">View <%= campground.title %>
+            </a>
+          </div>
         </div>
-        <% }%>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<script>
+  function initMap() {
+    const campgrounds = <%- JSON.stringify(campgrounds) %>;
+
+    // console.log('campgrounds: ', campgrounds);
+    const map = new google.maps.Map(document.getElementById('map'), {
+      center: {
+        lat: 39.8283,
+        lng: -98.5795
+      },
+      zoom: 8
+    });
+
+    const bounds = new google.maps.LatLngBounds();
+    campgrounds.forEach(campground => {
+      const coordinates = campground.geometry.coordinates;
+
+      if (!coordinates || coordinates.length === 0) {
+        return;
+      }
+
+      let marker = new google.maps.Marker({
+        position: {
+          lat: coordinates[1],
+          lng: coordinates[0]
+        },
+        title: campground.title,
+        map: map
+      });
+      bounds.extend(marker.position);
+    });
+
+    map.fitBounds(bounds);
+    
+    const maxZoom = 17;
+    google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+      if (map.getZoom() > maxZoom) {
+        map.setZoom(maxZoom);
+      }
+    });
+  }
+</script>

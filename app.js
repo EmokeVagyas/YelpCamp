@@ -2,7 +2,6 @@ if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 
-
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -14,13 +13,17 @@ const methodOverride = require('method-override');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
+const helmet = require('helmet');
 
 const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campground');
 const reviewRoutes = require('./routes/reviews');
 const { required } = require('joi');
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp');
+const MongoStore = require('connect-mongo');
+
+const dbUrl = process.env.DB_URL;
+mongoose.connect(dbUrl);
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -42,6 +45,10 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const sessionConfig = {
+    store: MongoStore.create({
+        mongoUrl: dbUrl,
+        touchAfter: 24 * 3600 // time period in seconds
+    }),
     secret: 'thisshouldbeabettersecret!',
     resave: false,
     saveUninitialized: true,
@@ -54,6 +61,20 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 app.use(flash());
+// app.use(
+//     helmet.contentSecurityPolicy({
+//         directives: {
+//             defaultSrc: ["'self'"],
+//             scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cdn.jsdelivr.net/"],
+//             styleSrc: ["'self'", "https://cdn.jsdelivr.net"],
+//             imgSrc: ["'self'", "https://www.campsited.com", "https://res.cloudinary.com/"],
+//             connectSrc: ["'self'"],
+//             fontSrc: ["'self'", "https://fonts.gstatic.com"],
+//             objectSrc: ["'none'"],
+//             upgradeInsecureRequests: [],
+//         },
+//     })
+// );
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -87,6 +108,6 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render('error', { err })
 });
 
-app.listen(3000, () => {
+app.listen(3000, '0.0.0.0', () => {
     console.log('Serving on port 3000')
 });

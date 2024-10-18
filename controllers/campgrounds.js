@@ -6,7 +6,7 @@ const client = new Client({});
 
 const index = async (req, res) => {
     const campgrounds = await Campground.find({});
-    res.render('campgrounds/index', { campgrounds });
+    res.render('campgrounds/index', { campgrounds, includeGoogleMaps: true });
 };
 
 const renderNewForm = (req, res) => {
@@ -45,7 +45,7 @@ const showCampground = async (req, res) => {
         req.flash('error', 'Cannot find that campground!')
         return res.redirect('/campgrounds')
     }
-    res.render('campgrounds/show', { campground })
+    res.render('campgrounds/show', { campground, includeGoogleMaps: true })
 };
 
 const renderEditForm = async (req, res) => {
