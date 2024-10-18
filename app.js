@@ -61,20 +61,37 @@ const sessionConfig = {
 
 app.use(session(sessionConfig));
 app.use(flash());
-// app.use(
-//     helmet.contentSecurityPolicy({
-//         directives: {
-//             defaultSrc: ["'self'"],
-//             scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cdn.jsdelivr.net/"],
-//             styleSrc: ["'self'", "https://cdn.jsdelivr.net"],
-//             imgSrc: ["'self'", "https://www.campsited.com", "https://res.cloudinary.com/"],
-//             connectSrc: ["'self'"],
-//             fontSrc: ["'self'", "https://fonts.gstatic.com"],
-//             objectSrc: ["'none'"],
-//             upgradeInsecureRequests: [],
-//         },
-//     })
-// );
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: [
+                "'self'",
+                "https://cdn.jsdelivr.net",
+                "https://maps.googleapis.com",
+                "https://maps.gstatic.com",
+                "'unsafe-inline'"
+            ],
+            styleSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
+            imgSrc: [
+                "'self'",
+                "https://www.campsited.com",
+                "https://res.cloudinary.com/",
+                "https://maps.googleapis.com",
+                "https://maps.gstatic.com"
+            ],
+            connectSrc: [
+                "'self'",
+                "https://maps.googleapis.com",
+                "https://*.googleapis.com"
+            ],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: [],
+        },
+    })
+);
+
 
 app.use(passport.initialize());
 app.use(passport.session());

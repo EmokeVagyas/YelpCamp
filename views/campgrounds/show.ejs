@@ -43,11 +43,13 @@
                 <h5 class="card-title"><%= campground.title %></h5>
                 <p class="card-text"><%= campground.description %>.</p>
             </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item text-muted"><%= campground.location %></li>
-                <li class="list-group-item">Submitted by <%= campground.author.username %></li>
-                <li class="list-group-item">$ <%= campground.price %>/night</li>
-            </ul>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item text-muted"><%= campground.location %></li>
+            <li class="list-group-item">
+                Submitted by <%= campground.author ? campground.author.username : 'Unknown' %>
+            </li>
+    <li class="list-group-item">$ <%= campground.price %>/night</li>
+        </ul>
             <% if (currentUser && campground.author.equals(currentUser._id)) { %>
                 <div class="card-body">
                     <a class="card-link btn btn-info" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
